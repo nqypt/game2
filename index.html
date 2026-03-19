@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>神経衰弱</title>
+<style>
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #1e1e2f;
+    color: white;
+}
+
+h1 {
+    margin: 10px;
+}
+
+#moves {
+    margin-bottom: 10px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 80px);
+    gap: 10px;
+    justify-content: center;
+}
+
+.card {
+    width: 80px;
+    height: 80px;
+    background: #444;
+    border-radius: 10px;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.open {
+    background: #4fc3f7;
+}
+
+.matched {
+    background: #2ecc71;
+    cursor: default;
+}
+</style>
+</head>
+<body>
+
+<h1>🃏 神経衰弱</h1>
+<div id="moves">手数: 0</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const symbols = ["🍎","🍌","🍇","🍓","🍍","🍒","🥝","🍉"];
+let cards = [...symbols, ...symbols]; // ペア作成
+cards.sort(() => Math.random() - 0.5);
+
+const grid = document.getElementById("grid");
+
+let first = null;
+let second = null;
+let lock = false;
+let moves = 0;
+
+// カード作成
+cards.forEach(symbol => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.dataset.symbol = symbol;
+    div.textContent = "";
+
+    div.addEventListener("click", () => {
+        if (lock || div.classList.contains("open") || div.classList.contains("matched")) return;
+
+        div.textContent = symbol;
+        div.classList.add("open");
+
+        if (!first) {
+            first = div;
+        } else {
+            second = div;
+            lock = true;
+            moves++;
+            document.getElementById("moves").textContent = "手数: " + moves;
+
+            if (first.dataset.symbol === second.dataset.symbol) {
+                first.classList.add("matched");
+                second.classList.add("matched");
+                reset();
+
+                checkClear();
+            } else {
+                setTimeout(() => {
+                    first.textContent = "";
+                    second.textContent = "";
+                    first.classList.remove("open");
+                    second.classList.remove("open");
+                    reset();
+                }, 800);
+            }
+        }
+    });
+
+    grid.appendChild(div);
+});
+
+function reset() {
+    first = null;
+    second = null;
+    lock = false;
+}
+
+function checkClear() {
+    const allMatched = document.querySelectorAll(".matched").length;
+    if (allMatched === cards.length) {
+        setTimeout(() => {
+            alert("クリア！手数: " + moves);
+        }, 300);
+    }
+}
+</script>
+
+</body>
+</html>
